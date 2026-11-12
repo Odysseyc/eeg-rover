@@ -1,0 +1,26 @@
+# Calibration for this rover. Edit and relaunch; no rebuild needed.
+# See docs/calibration.md for how to measure each value.
+
+# Steering
+wheelbase: 0.33            # m, rear axle to front axle (measure)
+max_steer: 0.45            # rad, front-wheel angle at full lock (~26 deg)
+servo_center: 85.0         # servo angle that drives straight (trim if it drifts)
+servo_min: 30.0            # servo limits from the Feather firmware
+servo_max: 140.0
+servo_deg_per_rad: 122.0   # servo degrees per radian of wheel angle
+steer_sign: -1.0           # -1: lower servo angle = left (true on this rover). Flip if left/right are swapped.
+
+# Speed
+erpm_per_mps: 2850.6       # motor electrical RPM per m/s (from the original ros2vesc.py)
+max_speed: 1.5             # m/s, hard cap regardless of what the laptop sends
+accel: 1.5                 # m/s^2 when speeding up
+decel: 3.0                 # m/s^2 when slowing down or reversing
+min_erpm: 600.0            # lowest RPM the VESC can hold
+
+# Safety
+cmd_timeout: 0.5           # s without /cmd_vel before the rover stops
+rate: 50.0                 # Hz control loop
+
+# Serial devices (check with: ls /dev/serial/by-id/)
+steer_port: /dev/serial/by-id/usb-Adafruit_Feather_M4_CAN_A88A3C905339473237202020FF113638-if00
+vesc_port: /dev/serial/by-id/usb-STMicroelectronics_ChibiOS_RT_Virtual_COM_Port_304-if00

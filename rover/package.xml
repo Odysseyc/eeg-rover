@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>eeg_rover_base</name>
+  <version>0.1.0</version>
+  <description>Onboard driver for the EEG rover: /cmd_vel to steering servo (Feather) and drive motor (VESC), with a safety watchdog.</description>
+  <maintainer email="you@stanford.edu">Adam Sabet</maintainer>
+  <license>Proprietary (lab-internal)</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
+</package>

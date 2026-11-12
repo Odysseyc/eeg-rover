@@ -1,0 +1,115 @@
+<!--
+  4-wheel Ackermann car, roughly 1:10 RC scale (F1TENTH-like).
+  Frames: the chassis body origin is the centre of the rear axle at wheel-centre height,
+  which is the standard reference point for Ackermann kinematics (and our base_link).
+  Drive: 4 torque motors driven by a PID speed loop in Python (vehicle.py).
+  Steering: 2 position servos (MuJoCo's built-in PD position actuator).
+-->
+<mujoco model="ackermann_car">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" integrator="implicitfast"/>
+
+
+  <asset>
+    <texture name="grid" type="2d" builtin="checker" rgb1=".1 .2 .3" rgb2=".2 .3 .4"
+             width="512" height="512" mark="edge" markrgb=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+    <texture name="sky" type="skybox" builtin="gradient" rgb1=".4 .6 .8" rgb2="0 0 0"
+             width="512" height="512"/>
+    <material name="body" rgba=".15 .35 .75 1"/>
+    <material name="tire" rgba=".08 .08 .08 1"/>
+    <material name="hub" rgba=".75 .75 .75 1"/>
+    <material name="sensor" rgba=".9 .8 .1 1"/>
+  </asset>
+
+  <default>
+    <default class="wheel">
+      <joint type="hinge" axis="0 1 0" damping="0.0005"/>
+      <geom type="cylinder" size="0.05 0.025" zaxis="0 1 0" mass="0.2"
+            material="tire" friction="1.2 0.01 0.001"/>
+      <default class="hub">
+        <geom type="box" size="0.035 0.026 0.006" mass="0" material="hub"
+              contype="0" conaffinity="0"/>
+      </default>
+    </default>
+    <default class="steer">
+      <joint type="hinge" axis="0 0 1" range="-0.5 0.5" damping="0.02" armature="0.0005"/>
+    </default>
+    <default class="visual">
+      <geom contype="0" conaffinity="0" mass="0"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <light pos="0 0 6" dir="0 0 -1" directional="true"/>
+    <geom name="floor" type="plane" size="6 6 0.05" material="grid"/>
+
+    <body name="chassis" pos="0 0 0.05">
+      <freejoint/>
+      <geom name="chassis" type="box" size="0.24 0.1 0.03" pos="0.16 0 0.035" mass="2.5" material="body"/>
+      <geom name="lidar_puck" class="visual" type="cylinder" size="0.03 0.015" pos="0.2 0 0.08" material="sensor"/>
+      <geom name="camera_box" class="visual" type="box" size="0.015 0.03 0.015" pos="0.385 0 0.08" material="sensor"/>
+
+      <!-- Sensors mounted on the chassis -->
+      <site name="imu" pos="0.16 0 0.035" size="0.01"/>
+      <site name="lidar" pos="0.2 0 0.09" size="0.01"/>
+      <!-- MuJoCo cameras look along their -z axis; xyaxes makes this one face +x (forward) -->
+      <camera name="front_camera" pos="0.4 0 0.08" xyaxes="0 -1 0 0 0 1" fovy="70"/>
+      <camera name="chase" pos="-1.0 0 0.55" xyaxes="0 -1 0 0.45 0 0.9" mode="trackcom"/>
+
+      <!-- Rear wheels -->
+      <body name="wheel_rl" pos="0 0.13 0">
+        <joint name="wheel_rl" class="wheel"/>
+        <geom class="wheel"/>
+        <geom class="hub"/>
+      </body>
+      <body name="wheel_rr" pos="0 -0.13 0">
+        <joint name="wheel_rr" class="wheel"/>
+        <geom class="wheel"/>
+        <geom class="hub"/>
+      </body>
+
+      <!-- Front wheels: steering knuckle (vertical hinge) carrying a spinning wheel -->
+      <body name="knuckle_fl" pos="0.32 0.13 0">
+        <joint name="steer_fl" class="steer"/>
+        <geom class="visual" type="sphere" size="0.012" mass="0.05"/>
+        <body name="wheel_fl">
+          <joint name="wheel_fl" class="wheel"/>
+          <geom class="wheel"/>
+          <geom class="hub"/>
+        </body>
+      </body>
+      <body name="knuckle_fr" pos="0.32 -0.13 0">
+        <joint name="steer_fr" class="steer"/>
+        <geom class="visual" type="sphere" size="0.012" mass="0.05"/>
+        <body name="wheel_fr">
+          <joint name="wheel_fr" class="wheel"/>
+          <geom class="wheel"/>
+          <geom class="hub"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude body1="chassis" body2="wheel_fl"/>
+    <exclude body1="chassis" body2="wheel_fr"/>
+  </contact>
+
+  <actuator>
+    <!-- Wheel torque motors (N·m). The PID in vehicle.py decides the torque. -->
+    <motor name="drive_fl" joint="wheel_fl" ctrlrange="-0.6 0.6"/>
+    <motor name="drive_fr" joint="wheel_fr" ctrlrange="-0.6 0.6"/>
+    <motor name="drive_rl" joint="wheel_rl" ctrlrange="-0.6 0.6"/>
+    <motor name="drive_rr" joint="wheel_rr" ctrlrange="-0.6 0.6"/>
+    <!-- Steering servos: ctrl is the target angle (rad) -->
+    <position name="steer_fl" joint="steer_fl" kp="30" dampratio="1" ctrlrange="-0.5 0.5" forcerange="-3 3"/>
+    <position name="steer_fr" joint="steer_fr" kp="30" dampratio="1" ctrlrange="-0.5 0.5" forcerange="-3 3"/>
+  </actuator>
+
+  <sensor>
+    <gyro name="imu_gyro" site="imu"/>
+    <accelerometer name="imu_accel" site="imu"/>
+    <framequat name="imu_quat" objtype="site" objname="imu"/>
+  </sensor>
+</mujoco>

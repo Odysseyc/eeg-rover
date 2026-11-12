@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>mujoco_car_sim</name>
+  <version>0.1.0</version>
+  <description>MuJoCo car simulation driven by ROS 2 /cmd_vel (keyboard or joystick)</description>
+  <maintainer email="you@stanford.edu">you</maintainer>
+  <license>Apache-2.0</license>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <!-- pip: pynput (keyboard_teleop), roslibpy (rover_bridge) -->
+  <export><build_type>ament_python</build_type></export>
+</package>

@@ -1,0 +1,20 @@
+# ROS 2 (colcon)
+laptop/ros2_ws/build/
+laptop/ros2_ws/install/
+laptop/ros2_ws/log/
+# ROS 1 (catkin) if built in place
+build/
+devel/
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+# Experiment outputs
+data/
+*.bag
+*.mp4

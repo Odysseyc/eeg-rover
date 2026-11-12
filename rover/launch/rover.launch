@@ -1,0 +1,14 @@
+<!--
+  Everything the rover runs: the driver (with watchdog) and rosbridge for the laptop.
+  Usage:  roslaunch eeg_rover_base rover.launch
+  Don't run Yunxin's ros2feather.py / ros2vesc.py at the same time (they use the same serial ports).
+-->
+<launch>
+  <arg name="port" default="9090"/>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+    <arg name="port" value="$(arg port)"/>
+  </include>
+  <node pkg="eeg_rover_base" type="rover_base.py" name="rover_base" output="screen">
+    <rosparam command="load" file="$(find eeg_rover_base)/config/rover.yaml"/>
+  </node>
+</launch>
