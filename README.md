@@ -1,20 +1,10 @@
 # EEG Rover
 
-Driving a mobile robot with a non-invasive brain-computer interface. A motor-imagery EEG classifier
-(built by teammates) produces coarse, noisy intent (left / right / forward / backward). This project turns
-that intent into safe, useful motion, with a **shared-autonomy** layer in between: the user supplies intent,
-the robot supplies safety and detail. Target applications are assistive mobility, e.g. brain-controlled wheelchairs.
+Driving a mobile robot with a non-invasive brain-computer interface. A motor-imagery EEG classifier produces coarse, 
+noisy intent (left / right / forward / backward). This project turns that intent into safe, useful motion, with a 
+**shared-autonomy** layer in between: the user supplies intent, the robot supplies safety and detail. Target 
+applications are assistive mobility, e.g. brain-controlled wheelchairs.
 
-## Architecture
-
-```
-Laptop / Windows                                          Rover (Jetson Orin Nano, ROS 1)
-EEG classifier ─┐                                         rosbridge (websocket :9090)
-Keyboard ───────┼─> /cmd_vel ─> rover_bridge ══Wi-Fi══>     │
-Xbox controller ┘     │          (ROS 2)                    └─> rover_base ─> steering servo (Feather)
- (tools/, Windows)    └─> MuJoCo sim (same /cmd_vel)              │  watchdog  └─> drive motor (VESC)
-                                                                  └─> /rover/battery, /rover/speed
-```
 Everything that decides *what* to do runs on the laptop. The rover only executes `/cmd_vel`
 (speed in m/s, yaw rate in rad/s) and stops itself if commands stop for 0.5 s.
 The simulator accepts the same `/cmd_vel`, so anything developed in sim drives the real rover unchanged.
