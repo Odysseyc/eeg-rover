@@ -5,20 +5,6 @@ Driving a mobile robot with a non-invasive brain-computer interface. A motor-ima
 that intent into safe, useful motion, with a **shared-autonomy** layer in between: the user supplies intent,
 the robot supplies safety and detail. Target applications are assistive mobility, e.g. brain-controlled wheelchairs.
 
-## Architecture
-
-```
-Laptop / Windows                                          Rover (Jetson Orin Nano, ROS 1)
-EEG classifier ─┐                                         rosbridge (websocket :9090)
-Keyboard ───────┼─> /cmd_vel ─> rover_bridge ══Wi-Fi══>     │
-Xbox controller ┘     │          (ROS 2)                    └─> rover_base ─> steering servo (Feather)
- (tools/, Windows)    └─> MuJoCo sim (same /cmd_vel)              │  watchdog  └─> drive motor (VESC)
-                                                                  └─> /rover/battery, /rover/speed
-```
-Everything that decides *what* to do runs on the laptop. The rover only executes `/cmd_vel`
-(speed in m/s, yaw rate in rad/s) and stops itself if commands stop for 0.5 s.
-The simulator accepts the same `/cmd_vel`, so anything developed in sim drives the real rover unchanged.
-
 ## Repo layout
 
 | Path | Runs on | What |
@@ -50,18 +36,8 @@ ros2 launch mujoco_car_sim sim.launch.py rviz:=true
 ```
 One-time setup for each machine is in `docs/hardware.md`.
 
-## Roadmap
-- [x] MuJoCo simulation (Ackermann car, PID wheel control, camera / lidar / IMU, procedural obstacles)
-- [x] Rover driver with working reverse, correct steering direction, ramping and watchdog
-- [x] Remote driving from laptop and Xbox controller
-- [ ] Calibrate the rover (`docs/calibration.md`)
-- [ ] Baseline classifiers on BCI Competition IV 2a (`eeg/`, step 1)
-- [ ] Simulated noisy-EEG experiment: corrupt commands at a set accuracy, add shared autonomy, measure success / collisions / time
-- [ ] Agree the EEG interface with the EEG team (`docs/eeg_interface.md`)
-- [ ] Shared-autonomy layer (intent inference, lidar-based safety filter, smooth handover)
-- [ ] Closed-loop tests with the real EEG classifier
-
 ## Credits
+
 The rover hardware and its original drivers come from Yunxin Fan's Diffusion-SAFE experiments
 ([labicon/HRMotion-RestrictedView](https://github.com/labicon/HRMotion-RestrictedView)). `rover_base.py` is a
 rewrite of her `ros2feather.py` and `ros2vesc.py` (same serial protocols and speed conversion), and
