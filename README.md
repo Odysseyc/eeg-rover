@@ -1,10 +1,20 @@
 # EEG Rover
 
-Driving a mobile robot with a non-invasive brain-computer interface. A motor-imagery EEG classifier produces coarse, 
-noisy intent (left / right / forward / backward). This project turns that intent into safe, useful motion, with a 
-**shared-autonomy** layer in between: the user supplies intent, the robot supplies safety and detail. Target 
-applications are assistive mobility, e.g. brain-controlled wheelchairs.
+Driving a mobile robot with a non-invasive brain-computer interface. A motor-imagery EEG classifier
+(built by teammates) produces coarse, noisy intent (left / right / forward / backward). This project turns
+that intent into safe, useful motion, with a **shared-autonomy** layer in between: the user supplies intent,
+the robot supplies safety and detail. Target applications are assistive mobility, e.g. brain-controlled wheelchairs.
 
+## Architecture
+
+```
+Laptop / Windows                                          Rover (Jetson Orin Nano, ROS 1)
+EEG classifier ─┐                                         rosbridge (websocket :9090)
+Keyboard ───────┼─> /cmd_vel ─> rover_bridge ══Wi-Fi══>     │
+Xbox controller ┘     │          (ROS 2)                    └─> rover_base ─> steering servo (Feather)
+ (tools/, Windows)    └─> MuJoCo sim (same /cmd_vel)              │  watchdog  └─> drive motor (VESC)
+                                                                  └─> /rover/battery, /rover/speed
+```
 Everything that decides *what* to do runs on the laptop. The rover only executes `/cmd_vel`
 (speed in m/s, yaw rate in rad/s) and stops itself if commands stop for 0.5 s.
 The simulator accepts the same `/cmd_vel`, so anything developed in sim drives the real rover unchanged.
@@ -13,8 +23,9 @@ The simulator accepts the same `/cmd_vel`, so anything developed in sim drives t
 
 | Path | Runs on | What |
 |---|---|---|
-| `rover/` | Jetson (ROS 1 Noetic) | `eeg_rover_base` package: driver, watchdog, calibration (`config/rover.yaml`) |
+| `rover/` | Jetson (ROS 1 Noetic) | `eeg_rover_base` package: driver, watchdog, calibration (`config/rover.yaml`), browser camera stream |
 | `laptop/ros2_ws/src/mujoco_car_sim` | Laptop (ROS 2 Humble, WSL) | MuJoCo sim with sensors and obstacles, keyboard teleop, `rover_bridge` |
+| `eeg/` | Laptop (Python venv) | Motor-imagery classifiers on BCI Competition IV 2a; replay banks for the sim |
 | `tools/xbox_teleop.py` | Windows | Xbox controller driving, no ROS needed |
 | `firmware/feather` | Steering board | Servo firmware (reference copy) |
 | `docs/` | | Hardware, calibration, and the proposed EEG interface |
@@ -44,6 +55,7 @@ One-time setup for each machine is in `docs/hardware.md`.
 - [x] Rover driver with working reverse, correct steering direction, ramping and watchdog
 - [x] Remote driving from laptop and Xbox controller
 - [ ] Calibrate the rover (`docs/calibration.md`)
+- [ ] Baseline classifiers on BCI Competition IV 2a (`eeg/`, step 1)
 - [ ] Simulated noisy-EEG experiment: corrupt commands at a set accuracy, add shared autonomy, measure success / collisions / time
 - [ ] Agree the EEG interface with the EEG team (`docs/eeg_interface.md`)
 - [ ] Shared-autonomy layer (intent inference, lidar-based safety filter, smooth handover)

@@ -18,3 +18,5 @@ __pycache__/
 data/
 *.bag
 *.mp4
+# EEG: trained models are reproducible; keep summaries, figures and replay banks
+eeg/results/models/
