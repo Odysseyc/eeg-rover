@@ -41,5 +41,4 @@ One-time setup for each machine is in `docs/hardware.md`.
 The rover hardware and its original drivers come from Yunxin Fan's Diffusion-SAFE experiments
 ([labicon/HRMotion-RestrictedView](https://github.com/labicon/HRMotion-RestrictedView)). `rover_base.py` is a
 rewrite of her `ros2feather.py` and `ros2vesc.py` (same serial protocols and speed conversion), and
-`firmware/feather/code.py` is her steering firmware. Her repo has no license, so keep this repo private
-unless she agrees otherwise.
+`firmware/feather/code.py` is her steering firmware.
